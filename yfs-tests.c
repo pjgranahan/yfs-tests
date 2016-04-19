@@ -60,7 +60,6 @@ char* test_chdir() {
 
 	rmdisk();
 
-
 	printf("Done testing chdir\n");
 	return result;
 }
