@@ -6,97 +6,95 @@
 
 char yalnix[100] = "/clear/courses/comp421/pub/bin/yalnix -n -lu 5 -ly 5";
 char yfs[50] = "../comp421/lab3/yfs";
+char test_dir[50] = "../comp421/lab3/tests/";
+char mkyfs_command[100] = "/clear/courses/comp421/pub/bin/mkyfs";
 
 int num_tests = 0;
 int tests_failed = 0;
 int tests_run = 0;
 
+int RESULT_MESSAGE_SIZE = 1024;
+
 struct tr {
 	int index;
 	int duration; // Test duration in milliseconds
-	char* message; // 0 if test passed
+	char message[1024];
 };
 typedef struct tr* test_result;
 
-typedef char* (*func_ptr)();
+typedef void (*func_ptr)(char* result);
 
 int mkdisk(int num_inodes);
 int rmdisk();
-char* assert(char* message, int test);
+//char* assert(char* message, int test);
 test_result run_test(func_ptr test);
 int print_test_result(test_result result);
 test_result* all_tests();
-
+void mkcommand(char* test_name, char* target);
+void build_and_run_command(char* test_name, char* result);
 
 /*
  * BEGIN TESTS
  */
-char* test_chdir() {
-	printf("Testing chdir\n");
-
+void test_chdir(char* result) {
 	mkdisk(0);
-
-	/* Open the command for reading. */
-
-	char test_command[300];
-	strcpy(test_command, yalnix);
-	strcat(test_command, " ");
-	strcat(test_command, yfs);
-	strcat(test_command, " ");
-	strcat(test_command, "../comp421/lab3/tests/chdir");
-	printf("test command: %s\n", test_command);
-	fflush(stdout);
-	FILE *fp;
-	fp = popen(test_command, "r");
-	if (fp == NULL) {
-		printf("Failed to run test command\n");
-		exit(1);
-	}
-
-	char result[1024];
-	fgets(result, sizeof(result), fp);
-	printf("finished result\n");
-	fflush(stdout);
-
+	build_and_run_command("chdir", result);
 	rmdisk();
-
-	printf("Done testing chdir\n");
-	return result;
 }
 /*
  * END TESTS
  */
+
+void run_command(char* command, char* result) {
+	printf("Running command: %s\n", command);
+	fflush(stdout);
+
+	FILE *fp;
+	fp = popen(command, "r");
+	if (fp == NULL) {
+		printf("Failed to run command: %s\n", command);
+		exit(1);
+	}
+
+	// Record and return the result if it's wanted
+	if (result != NULL)
+		fgets(result, RESULT_MESSAGE_SIZE, fp);
+}
+
+void build_and_run_command(char* test_name, char* result) {
+	// Build the command
+	char command[300];
+	mkcommand(test_name, command);
+
+	// Run the command
+	run_command(command, result);
+}
+
+/*
+ * Builds a command using the given test name and a target char array
+ * example command: ./yalnix yfs test1
+ */
+void mkcommand(char* test_name, char* target) {
+	strcpy(target, yalnix);
+	strcat(target, " ");
+	strcat(target, yfs);
+	strcat(target, " ");
+	strcat(target, test_dir);
+	strcat(target, test_name);
+}
 
 /*
  * Makes a fresh disk
  */
 int mkdisk(int num_inodes) {
 	// Construct command
-	char mkyfs_command[100] = "/clear/courses/comp421/pub/bin/mkyfs";
 	if (num_inodes != 0) {
 		strcat(mkyfs_command, " ");
-		strcat(mkyfs_command, (char*) num_inodes);
+		strcat(mkyfs_command, (char*)&num_inodes);
 	}
 
-	// Show command
-	printf("Running command: %s\n", mkyfs_command);
-	fflush(stdout);
+	run_command(mkyfs_command, NULL);
 
-	// Run command
-	FILE *fp;
-	printf("Running command: %s\n", mkyfs_command);
-	fflush(stdout);
-	fp = popen(mkyfs_command, "r");
-	printf("Running command: %s\n", mkyfs_command);
-	fflush(stdout);
-	if (fp == NULL) {
-		printf("Failed to run command\n");
-		fflush(stdout);
-		exit(1);
-	}
-
-	printf("Command succeeded\n");
-	fflush(stdout);
 	return 0;
 }
 
@@ -109,16 +107,16 @@ int rmdisk() {
 	return 0;
 }
 
-/*
- * Asserts that the test is true, and returns an appropriate message based on the result.
- */
-char* assert(char* message, int test) {
-	if (!(test)) {
-		return message;
-	} else {
-		return 0;
-	}
-}
+///*
+// * Asserts that the test is true, and returns an appropriate message based on the result.
+// */
+//char* assert(char* message, int test) {
+//	if (!(test)) {
+//		return message;
+//	} else {
+//		return 0;
+//	}
+//}
 
 /*
  * Runs the provided function as a test.
@@ -133,7 +131,7 @@ test_result run_test(func_ptr test) {
 
 	// Time the test - timing code taken from http://stackoverflow.com/a/459704/3394807
 	clock_t start = clock();
-	result->message = test(); // record the test message
+	test(result->message);
 	clock_t stop = clock();
 	clock_t duration = stop - start;
 	result->duration = duration * 1000 / CLOCKS_PER_SEC; //record the test duration
