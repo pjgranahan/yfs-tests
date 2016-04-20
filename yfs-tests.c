@@ -4,13 +4,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-char yalnix[100] = "/clear/courses/comp421/pub/bin/yalnix -n -lu 5 -ly 5";
+char yalnix[100] = "/clear/courses/comp421/pub/bin/yalnix -n -lu 5 -ly 5 -lk 0";
 char yfs[50] = "../comp421/lab3/yfs";
 char test_dir[50] = "../comp421/lab3/tests/";
 char mkyfs_command[100] = "/clear/courses/comp421/pub/bin/mkyfs";
 
 int num_tests = 0;
-int tests_failed = 0;
 int tests_run = 0;
 
 int RESULT_MESSAGE_SIZE = 1024;
@@ -28,7 +27,7 @@ int mkdisk(int num_inodes);
 int rmdisk();
 //char* assert(char* message, int test);
 test_result run_test(func_ptr test);
-int print_test_result(test_result result);
+void print_test_result(test_result result);
 test_result* all_tests();
 void mkcommand(char* test_name, char* target);
 void build_and_run_command(char* test_name, char* result);
@@ -39,6 +38,12 @@ void build_and_run_command(char* test_name, char* result);
 void test_chdir(char* result) {
 	mkdisk(0);
 	build_and_run_command("chdir", result);
+	rmdisk();
+}
+
+void test_create(char* result) {
+	mkdisk(0);
+	build_and_run_command("create", result);
 	rmdisk();
 }
 /*
@@ -147,15 +152,9 @@ test_result run_test(func_ptr test) {
 /*
  * Prints a test_result object.
  */
-int print_test_result(test_result result) {
+void print_test_result(test_result result) {
 	printf("test %d (%d ms) -\t\tresult:", result->index, result->duration);
-	if (result->message != 0) {
-		printf("\t%s\n", result->message);
-		return -1;
-	} else {
-		printf("\tpass\n");
-		return 0;
-	}
+	printf("\t%s\n", result->message);
 }
 
 /*
@@ -165,7 +164,8 @@ test_result* all_tests() {
 	// Create an array of test functions
 	printf("\tCreating array of tests...\n");
 	func_ptr tests[1] = {
-			test_chdir
+			test_create
+//			test_chdir
 	};
 
 	// Set the number of tests that will be run
@@ -197,19 +197,14 @@ int main() {
 
 	printf("Running tests...\n");
 	test_result* results = all_tests();
-	printf("\nTEST RESULTS\n");
+	printf("\nTEST RESULTS (%d tests)\n", num_tests);
 	printf("---------------------------\n");
 
 	int i;
 	for (i = 0; i < num_tests; i++) {
-		tests_failed += print_test_result(results[i]);
-		free(results[i]);
+		print_test_result(results[i]);
 	}
-	free(results);
+	fflush(stdout);
 
-	if (tests_failed == 0) {
-		printf("ALL TESTS PASSED\n");
-	}
-
-	return tests_failed;
+	return 0;
 }
