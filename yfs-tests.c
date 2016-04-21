@@ -41,9 +41,39 @@ void test_chdir(char* result) {
 	rmdisk();
 }
 
-void test_create(char* result) {
+void test_create_close(char* result) {
 	mkdisk(0);
-	build_and_run_command("create", result);
+	build_and_run_command("create_close", result);
+	rmdisk();
+}
+
+void test_mkdir(char* result) {
+	mkdisk(0);
+	build_and_run_command("mkdir", result);
+	rmdisk();
+}
+
+void test_open(char* result) {
+	mkdisk(0);
+	build_and_run_command("open", result);
+	rmdisk();
+}
+
+void test_read_write_seek(char* result) {
+	mkdisk(0);
+	build_and_run_command("read_write_seek", result);
+	rmdisk();
+}
+
+void test_rmdir(char* result) {
+	mkdisk(0);
+	build_and_run_command("rmdir", result);
+	rmdisk();
+}
+
+void test_stat(char* result) {
+	mkdisk(0);
+	build_and_run_command("stat", result);
 	rmdisk();
 }
 /*
@@ -112,17 +142,6 @@ int rmdisk() {
 	return 0;
 }
 
-///*
-// * Asserts that the test is true, and returns an appropriate message based on the result.
-// */
-//char* assert(char* message, int test) {
-//	if (!(test)) {
-//		return message;
-//	} else {
-//		return 0;
-//	}
-//}
-
 /*
  * Runs the provided function as a test.
  * Records the message returned by the test, and how long the test took to run, in a test_result object.
@@ -164,7 +183,12 @@ test_result* all_tests() {
 	// Create an array of test functions
 	printf("\tCreating array of tests...\n");
 	func_ptr tests[1] = {
-			test_create
+			test_read_write_seek
+//			test_stat
+//			test_rmdir
+//			test_open
+//			test_mkdir
+//			test_create_close
 //			test_chdir
 	};
 
