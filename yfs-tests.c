@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-char yalnix[100] = "/clear/courses/comp421/pub/bin/yalnix -n -lu 5 -ly 5 -lk 0";
+char yalnix[100] = "/clear/courses/comp421/pub/bin/yalnix -n -lu 5 -ly 5 -s";
 char yfs[50] = "../comp421/lab3/yfs";
 char test_dir[50] = "../comp421/lab3/tests/";
 char mkyfs_command[100] = "/clear/courses/comp421/pub/bin/mkyfs";
