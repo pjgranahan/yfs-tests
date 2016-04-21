@@ -47,9 +47,9 @@ void test_create_close(char* result) {
 	rmdisk();
 }
 
-void test_mkdir(char* result) {
+void test_mkdir_rmdir(char* result) {
 	mkdisk(0);
-	build_and_run_command("mkdir", result);
+	build_and_run_command("mkdir_rmdir", result);
 	rmdisk();
 }
 
@@ -59,21 +59,9 @@ void test_open(char* result) {
 	rmdisk();
 }
 
-void test_read_write_seek(char* result) {
+void test_read_write_seek_stat(char* result) {
 	mkdisk(0);
-	build_and_run_command("read_write_seek", result);
-	rmdisk();
-}
-
-void test_rmdir(char* result) {
-	mkdisk(0);
-	build_and_run_command("rmdir", result);
-	rmdisk();
-}
-
-void test_stat(char* result) {
-	mkdisk(0);
-	build_and_run_command("stat", result);
+	build_and_run_command("read_write_seek_stat", result);
 	rmdisk();
 }
 /*
@@ -182,14 +170,12 @@ void print_test_result(test_result result) {
 test_result* all_tests() {
 	// Create an array of test functions
 	printf("\tCreating array of tests...\n");
-	func_ptr tests[1] = {
-			test_read_write_seek
-//			test_stat
-//			test_rmdir
-//			test_open
-//			test_mkdir
-//			test_create_close
-//			test_chdir
+	func_ptr tests[5] = {
+			test_mkdir_rmdir,
+			test_open,
+			test_chdir,
+			test_create_close,
+			test_read_write_seek_stat
 	};
 
 	// Set the number of tests that will be run
