@@ -1,13 +1,4 @@
-#################
-# TODO: you just need to fill out these
-#IOLIB = ../comp421/lab3/iolib.a
-#YFS = ../comp421/lab3/yfs
-#################
-
-TEST_SRCS = $(wildcard tests/*.c)
-TEST_TARGETS = $(patsubst %.c,%,$(TEST_SRCS))
-
-ALL = yfs-tests $(TEST_TARGETS)
+ALL = yfs-tests
 
 LANG = gcc
 PUBLIC_DIR = /clear/courses/comp421/pub
@@ -27,7 +18,7 @@ all: $(ALL)
 
 yfs-tests: yfs-tests.c $(TEST_SRCS)
 	@echo "Building yfs-tests"
-	$(CC) $(CFLAGS) $(CPPFLAGS) -o yfs-tests yfs-tests.c $(IOLIB) $(YFS)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o yfs-tests yfs-tests.c
 	@echo "Done Building yfs-tests"
 
 clean:
