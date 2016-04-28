@@ -4,10 +4,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-char yalnix[100] = "/clear/courses/comp421/pub/bin/yalnix -n -lu 5 -ly 5 -s";
-char yfs[50] = "../comp421/lab3/yfs";
-char test_dir[50] = "../comp421/lab3/tests/";
-char mkyfs_command[100] = "/clear/courses/comp421/pub/bin/mkyfs";
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! Edit this part !!!
+char yalnix[100] = "/clear/courses/comp421/pub/bin/yalnix -n -lu 5 -ly 5 -s"; //should point to the public yalnix kernel and should include the arguments you want
+char yfs[50] = "../comp421/lab3/yfs"; //should point to YOUR YFS
+char test_dir[50] = "../comp421/lab3/tests/"; // should point to YOUR test directory
+char mkyfs_command[100] = "/clear/courses/comp421/pub/bin/mkyfs"; // should point to the public mkyfs
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 int num_tests = 0;
 int tests_run = 0;
@@ -64,6 +67,10 @@ void test_read_write_seek_stat(char* result) {
 	build_and_run_command("read_write_seek_stat", result);
 	rmdisk();
 }
+
+//follow the above format to add more tests
+// in theory, you can create specific types of disks (maybe prepopulated) and use those
+
 /*
  * END TESTS
  */
