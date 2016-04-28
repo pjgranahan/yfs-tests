@@ -27,3 +27,8 @@ The following user process file system operations are tested, thought we make no
 5. Build yfs-tests using the yfs-tests Makefile.
 6. Run yfs-tests (from a Unix environment, *not* a Yalnix environment).
 7. Report bugs here and/or fix them and submit a pull request.
+
+## License
+Tests are copyright Bumjin Im and Patrick Granahan, 2016.
+Everything else is copyright Patrick Granahan, 2016.
+You're welcome to use this project while working on YFS.
