@@ -4,13 +4,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!! Edit this part !!!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// !!! Edit this part !!!!!!!!!!!!!!!!!
 char yalnix[100] = "/clear/courses/comp421/pub/bin/yalnix -n -lu 5 -ly 5 -s"; //should point to the public yalnix kernel and should include the arguments you want
 char yfs[50] = "../comp421/lab3/yfs"; //should point to YOUR YFS
 char test_dir[50] = "../comp421/lab3/tests/"; // should point to YOUR test directory
 char mkyfs_command[100] = "/clear/courses/comp421/pub/bin/mkyfs"; // should point to the public mkyfs
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 int num_tests = 0;
 int tests_run = 0;
@@ -50,6 +50,12 @@ void test_create_close(char* result) {
 	rmdisk();
 }
 
+void test_link_unlink(char* result) {
+	mkdisk(0);
+	build_and_run_command("link_unlink", result);
+	rmdisk();
+}
+
 void test_mkdir_rmdir(char* result) {
 	mkdisk(0);
 	build_and_run_command("mkdir_rmdir", result);
@@ -65,6 +71,12 @@ void test_open(char* result) {
 void test_read_write_seek_stat(char* result) {
 	mkdisk(0);
 	build_and_run_command("read_write_seek_stat", result);
+	rmdisk();
+}
+
+void test_symlink_readlink(char* result) {
+	mkdisk(0);
+	build_and_run_command("symlink_readlink", result);
 	rmdisk();
 }
 
@@ -177,12 +189,14 @@ void print_test_result(test_result result) {
 test_result* all_tests() {
 	// Create an array of test functions
 	printf("\tCreating array of tests...\n");
-	func_ptr tests[5] = {
-			test_mkdir_rmdir,
-			test_open,
+	func_ptr tests[] = {
 			test_chdir,
 			test_create_close,
-			test_read_write_seek_stat
+			test_link_unlink,
+			test_mkdir_rmdir,
+			test_open,
+			test_read_write_seek_stat,
+			test_symlink_readlink
 	};
 
 	// Set the number of tests that will be run
