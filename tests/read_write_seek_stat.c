@@ -11,15 +11,12 @@
 * Created Apr. 16. 2016.                             *
 *****************************************************/
 
-#include <comp421/yalnix.h>
+#include <comp421/filesystem.h>
 #include <comp421/iolib.h>
-#include <comp421/hardware.h>
-
+#include <comp421/yalnix.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include <yfs.h>
 
 #define assert(message, test) do { if (!(test)) { Shutdown(); printf(message); return 1; } } while (0)
 #define SIZE 8 * SECTORSIZE
@@ -49,31 +46,35 @@ int main()
 		ret = Write(fd, buf, SIZE);
 		assert("Write position not advancing correctly in indirect block writes\n", ret == SIZE);
 	}
+
 	// Seeking to the end of those 5 blocks, skipping a block, and then writing another block
 	ret = Seek(fd, 0, SEEK_END);
 	assert("Seek end not working correctly\n", ret == SIZE * 5);
+
 	ret = Seek(fd, SIZE, SEEK_CUR);
 	assert("Seek not allowed to seek past end of file?\n", ret == SIZE * 6);
 
 	ret = Write(fd, buf, SIZE);
 	assert("Write position not advancing correctly after seeking past end of file\n", ret == SIZE);
+
 	ret = Seek(fd, 0, SEEK_END);
 	assert("Seek set not working correctly after skipping\n", ret == SIZE * 7);
 
 	ret = Seek(fd, 0, SEEK_SET);
 	assert("Seek set not working correctly\n", ret == 0);
+
 	ret = Seek(fd, -1, SEEK_SET);
 	assert("Seek set allowed to seek before beginning of file\n", ret == ERROR);
+
 	ret = Seek(fd, -1, SEEK_CUR);
 	assert("Seek cur allowed to seek before beginning of file\n", ret == ERROR);
 	Close(fd);
 
 	// Test stat of a
 	fprintf(stderr, "Test stat of a\n");
-	fd = Stat("a", &mystat);
-	fprintf(stderr, "Stat a: [%d], inode=%d, type=%d, size=%d, nlink=%d\n", fd, mystat.inum, mystat.type, mystat.size,  mystat.nlink);
-	assert("Stats failed on a", fd == 0 && mystat.inum == 2 && mystat.type == 2 && mystat.size == SIZE * 7 && mystat.nlink == 1);
-
+	ret = Stat("a", &mystat);
+	fprintf(stderr, "Stat a: [%d], inode=%d, type=%d, size=%d, nlink=%d\n", ret, mystat.inum, mystat.type, mystat.size, mystat.nlink);
+	assert("Stats failed on a", ret == 0 && mystat.inum == 2 && mystat.type == INODE_REGULAR && mystat.size == SIZE * 7 && mystat.nlink == 1);
 
 	// Begin read tests on a file
 	fprintf(stderr, "Begin read tests on a file\n");
@@ -115,7 +116,6 @@ int main()
 	ret = Seek(fd, 0, SEEK_END);
 	ret = Read(fd, buf, SIZE);
 	assert("Read wrong number of bytes: seek end\n", ret == 0);
-
 	Close(fd);
 
 	// Test Reading and writing on directories
@@ -123,7 +123,6 @@ int main()
 	fd = Open(".");
 	ret = Read(fd, buf, 16);
 	assert("Read wrong number of bytes: . dir\n", ret == 16);
-	//TODO: idk what this should actually return
 	ret = Write(fd, buf, 16);
 	assert("Wrote to directory\n", ret == ERROR);
 	Close(fd);
@@ -131,11 +130,9 @@ int main()
 	fd = Open("/");
 	ret = Read(fd, buf, 16);
 	assert("Read wrong number of bytes: / dir\n", ret == 16);
-	//TODO: idk what this should actually return
 	ret = Write(fd, buf, 16);
 	assert("Wrote to directory\n", ret == ERROR);
 	Close(fd);
-
 
 	// Null tests
 	fprintf(stderr, "null tests\n");
@@ -145,11 +142,10 @@ int main()
 	assert("Read null file\n", ret == ERROR);
 	ret = Write(fd, buf, 16);
 	assert("Wrote null file\n", ret == ERROR);
-	fd = Stat(NULL, &mystat);
-	assert("Stats on null", fd == ERROR);
-	fd = Stat("a", NULL);
-	assert("Stats with null stat struct", fd == ERROR);
-
+	ret = Stat(NULL, &mystat);
+	assert("Stats on null", ret == ERROR);
+	ret = Stat("a", NULL);
+	assert("Stats with null stat struct", ret == ERROR);
 
 	// Test more stat things
 	fprintf(stderr, "Test more stat things\n");
@@ -158,26 +154,22 @@ int main()
 		buf[j]++;
 	ret = Write(fd, buf, 16);
 	Close(fd);
-	fd = Stat("b", &mystat);
-	assert("Stats failed on b", fd == 0 && mystat.inum == 3 && mystat.type == 2 && mystat.size == 16 && mystat.nlink == 1);
+	ret = Stat("b", &mystat);
+	assert("Stats failed on b", ret == 0 && mystat.inum == 3 && mystat.type == INODE_REGULAR && mystat.size == 16 && mystat.nlink == 1);
 
-	fd = MkDir("c");
-	fd = Stat("c", &mystat);
-	assert("Stats failed on c", fd == 0 && mystat.inum == 4 && mystat.type == 1 && mystat.size == 64 && mystat.nlink == 2);
+	ret = MkDir("c");
+	ret = Stat("c", &mystat);
+	assert("Stats failed on c", ret == 0 && mystat.inum == 4 && mystat.type == INODE_DIRECTORY && mystat.size == 64 && mystat.nlink == 2);
 
-	fd = MkDir("c/d");
-	fd = Stat("c/d", &mystat);
-	assert("Stats failed on c/d", fd == 0 && mystat.inum == 5 && mystat.type == 1 && mystat.size == 64 && mystat.nlink == 2);
+	ret = MkDir("c/d");
+	ret = Stat("c/d", &mystat);
+	assert("Stats failed on c/d", ret == 0 && mystat.inum == 5 && mystat.type == INODE_DIRECTORY && mystat.size == 64 && mystat.nlink == 2);
 
-	fd = Stat("f", &mystat);
-	assert("Stats failed on f", fd == ERROR);
+	ret = Stat("f", &mystat);
+	assert("Stats failed on f", ret == ERROR);
 
-	fd = Sync();
-	assert("Sync failed", fd == 0);
-
-	Delay(3);
-
-	// TODO test stat on links?
+	ret = Sync();
+	assert("Sync failed", ret == 0);
 
 	printf("All tests passed\n");
 	return Shutdown();
